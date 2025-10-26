@@ -17,7 +17,7 @@ const connectDB = async () => {
 
     console.log("\n---------------------------------------------------------");
         
-    console.log("MongoDB connected successfully to mern-ecommerce database");
+    console.log("MongoDB connected successfully to mern-ecommerce database 👍");
     
     // List all collections in the database
     const collections = await mongoose.connection.db.listCollections().toArray();
