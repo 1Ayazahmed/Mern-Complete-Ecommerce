@@ -2,6 +2,7 @@ import { User } from "../model/userModel.js";
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
 import { verifyEmail } from "../emailVerification/verifyEmail.js";
+import {Session} from "../model/sessionModel.js"
 
 import dotenv from "dotenv";
 dotenv.config();
@@ -111,8 +112,6 @@ export const verifyToken = async (req, res) => {
   }
 };
 
-
-
 // Verify Again Or Resend Email
 export const reVerifyEmail = async (req, res) => {
   try {
@@ -135,6 +134,65 @@ export const reVerifyEmail = async (req, res) => {
       message: "Verification Email Sent Again Successfully",
       token: user.token,
     });
+  } catch (error) {
+    return res.status(500).json({
+      success: false,
+      message: error.message,
+    });
+  }
+};
+
+export const login = async (req, res) => {
+  try {
+    const { email, password } = req.body;
+    if (!email || !password) {
+      return res.status(400).json({
+        success: false,
+        message: "Fill All The Fields",
+      });
+    }
+    const existingUser = await User.findOne({ email });
+    if (!existingUser) {
+      return res.status(400).json({
+        success: false,
+        message: "User Not Exist",
+      });
+}
+      const isPasswordValid = await bcrypt.compare(
+        password,
+        existingUser.password
+      );
+
+      if (!isPasswordValid) {
+        return res.status(400).json({
+          success: false,
+          message: "Invalid Credentials",
+        });
+      }
+
+      if(existingUser.isVerified === false){
+        return res.status.json({
+            success:false,
+            message:"Verify Your Account Then Login"
+        })
+      }
+
+    // Generate Token
+      const accessToken =  jwt.sign({id:existingUser._id}, process.env.JWT_SECRET_KEY, {expireIn:'10d'})
+      const refreshToken =  jwt.sign({id:existingUser._id}, process.env.JWT_SECRET_KEY, {expireIn:'30d'})
+
+
+      existingUser.isLoggedIn = true;
+      await existingUser.save();
+      await Session.create({userId:existingUser._Id})
+      return res.status(200).json({
+        success:true,
+        message:`Welcome Back ${existingUser.firstName}`,
+        user:existingUser,
+        accessToken,
+        refreshToken
+      })
+
   } catch (error) {
     return res.status(500).json({
       success: false,
