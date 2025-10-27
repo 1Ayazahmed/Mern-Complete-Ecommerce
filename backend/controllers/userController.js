@@ -62,9 +62,8 @@ export const registerUser = async (req, res) => {
 // Verify Token
 
 export const verifyToken = async (req, res) => {
-
   try {
-   const authHeader = req.headers.authorization;
+    const authHeader = req.headers.authorization;
     if (!authHeader || !authHeader.startsWith("Bearer ")) {
       res.status(400).json({
         success: false,
@@ -106,6 +105,38 @@ export const verifyToken = async (req, res) => {
     });
   } catch (error) {
     res.status(500).json({
+      success: false,
+      message: error.message,
+    });
+  }
+};
+
+
+
+// Verify Again Or Resend Email
+export const reVerifyEmail = async (req, res) => {
+  try {
+    const { email } = req.body;
+    const user = await User.findOne({ email });
+    if (!user) {
+      return res.status(400).json({
+        success: true,
+        message: "User Not Found",
+      });
+    }
+    const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET_KEY, {
+      expiresIn: "1d",
+    });
+    verifyEmail(token, email);
+    user.token = token;
+    await user.save();
+    return res.status(200).json({
+      success: true,
+      message: "Verification Email Sent Again Successfully",
+      token: user.token,
+    });
+  } catch (error) {
+    return res.status(500).json({
       success: false,
       message: error.message,
     });
