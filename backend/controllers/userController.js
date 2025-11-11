@@ -235,7 +235,7 @@ export const logout = async (req,res)=>{
     }
 }
 
-// Forgot Password Controller
+// Forgot Password With OTP Controller 
 
 export const forgotPassword = async (req, res) => {
     try {
@@ -270,3 +270,63 @@ export const forgotPassword = async (req, res) => {
     }
     
 } 
+
+
+// Verify OTP Controller
+
+export const verifyOTP = async (req, res) => {
+    try {
+        const {otp } = req.body;
+        const { email } = req.params.email;
+        if (!otp) {
+            return res.status(400).json({ 
+                success: false,
+                message: "OTP Is Required",
+             });
+        }
+
+        const user = await User.findOne({ email });
+
+            if (!user) {
+            return res.status(400).json({ 
+                success: false,
+                message: "User Not Found",
+             }); 
+        }
+
+        if (!user.otp || !user.otpExpiry) {
+            return res.status(400).json({ 
+                success: false,
+                message: "Invalid or Expired OTP or OTP Is Not Generated or Already Verified",
+             }); 
+        }
+        if(user.otpExpiry < new Date()){
+            return res.status(400).json({ 
+                success: false,
+                message: "OTP has Expired",
+             }); 
+        }
+        if(otp !== user.otp){
+            return res.status(400).json({ 
+                success: false,
+                message: "Invalid OTP",
+             }); 
+        } 
+        user.otp = null;
+        user.otpExpiry = null;
+        await user.save();
+        return res.status(200).json({
+            success:true,
+            message:"OTP Verified Successfully"
+        })
+
+
+
+    } catch (error) {
+        return res.status(500).json({
+            success:false,
+            message:error.message
+        })  
+    }
+
+}
