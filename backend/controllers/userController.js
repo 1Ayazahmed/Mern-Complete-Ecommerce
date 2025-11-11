@@ -2,6 +2,7 @@ import { User } from "../model/userModel.js";
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
 import { verifyEmail } from "../emailVerification/verifyEmail.js";
+import { sendOTPMail } from "../emailVerification/sendOTPMail.js";
 import {Session} from "../model/sessionModel.js"
 
 import dotenv from "dotenv";
@@ -233,3 +234,39 @@ export const logout = async (req,res)=>{
         
     }
 }
+
+// Forgot Password Controller
+
+export const forgotPassword = async (req, res) => {
+    try {
+        const { email } = req.body;
+        const user = await User.findOne({ email });
+        if (!user) {
+            return res.status(400).json({
+                success: false,
+                message: "User Not Found",
+            });
+        }
+
+        const otp = Math.floor(100000 + Math.random() * 900000).toString(); // Generate a 6-digit OTP
+        console.log(otp); 
+        const otpExpiry = new Date(Date.now() + 10 * 60 * 1000); // OTP valid for 10 minutes
+        user.otp = otp;
+        user.otpExpiry = otpExpiry;
+        await user.save();
+        await sendOTPMail(otp, email); // Function to send OTP email
+
+        return res.status(200).json({
+            success: true,
+            message: "OTP Sent to Email Successfully",
+        });
+
+    } catch (error) {
+        return res.status(500).json({
+            success:false,
+            message:error.message
+        })
+        
+    }
+    
+} 
