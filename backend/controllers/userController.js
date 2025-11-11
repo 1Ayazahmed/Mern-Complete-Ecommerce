@@ -7,8 +7,7 @@ import {Session} from "../model/sessionModel.js"
 import dotenv from "dotenv";
 dotenv.config();
 
-// registerUser
-
+// register Controller
 export const registerUser = async (req, res) => {
   try {
     const { firstName, lastName, email, password } = req.body;
@@ -61,7 +60,6 @@ export const registerUser = async (req, res) => {
 };
 
 // Verify Token
-
 export const verifyToken = async (req, res) => {
   try {
     const authHeader = req.headers.authorization;
@@ -142,6 +140,7 @@ export const reVerifyEmail = async (req, res) => {
   }
 };
 
+// Login Controller 
 export const login = async (req, res) => {
   try {
     const { email, password } = req.body;
@@ -178,13 +177,26 @@ export const login = async (req, res) => {
       }
 
     // Generate Token
-      const accessToken =  jwt.sign({id:existingUser._id}, process.env.JWT_SECRET_KEY, {expireIn:'10d'})
-      const refreshToken =  jwt.sign({id:existingUser._id}, process.env.JWT_SECRET_KEY, {expireIn:'30d'})
+      const accessToken =  jwt.sign({ id: existingUser._id }, process.env.JWT_SECRET_KEY, {
+      expiresIn: "10d",
+    });
+      const refreshToken =  jwt.sign({ id: existingUser._id }, process.env.JWT_SECRET_KEY, {
+      expiresIn: "30d",
+    });
 
 
       existingUser.isLoggedIn = true;
       await existingUser.save();
-      await Session.create({userId:existingUser._Id})
+
+    //   check for existing Session & deleting it.
+      const existingSession = await Session.findOne({userId:existingUser._id})
+        if(existingSession){
+            await Session.deleteOne({_id: existingSession._id});
+        }
+
+
+        //if the session is not exist.
+      await Session.create({userId:existingUser._id})  
       return res.status(200).json({
         success:true,
         message:`Welcome Back ${existingUser.firstName}`,
@@ -196,7 +208,28 @@ export const login = async (req, res) => {
   } catch (error) {
     return res.status(500).json({
       success: false,
-      message: error.message,
+      message: `Here is Error From Catch ${error.message}`,
     });
   }
 };
+
+// Logout Controller
+
+export const logout = async (req,res)=>{
+    try {
+        const userID =  req.id;
+        // const user = await User.findById(userID);
+        await Session.deleteMany({userId:userID})
+        await User.findByIdAndUpdate(userID,{isLoggedIn:false})
+        return res.status(200).json({
+            success:true,
+            message:"Logged Out Successfully"
+        })
+    } catch (error) {
+        return res.status(500).json({
+            success:false,
+            message:error.message
+        })
+        
+    }
+}
