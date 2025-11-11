@@ -271,13 +271,12 @@ export const forgotPassword = async (req, res) => {
     
 } 
 
-
 // Verify OTP Controller
 
 export const verifyOTP = async (req, res) => {
     try {
         const {otp } = req.body;
-        const { email } = req.params.email;
+        const email = req.params.email;
         if (!otp) {
             return res.status(400).json({ 
                 success: false,
@@ -328,5 +327,43 @@ export const verifyOTP = async (req, res) => {
             message:error.message
         })  
     }
+
+}
+
+
+export const changePassword = async (req,res)=>{
+    try {
+        const {newPassword,confirmPassword} = req.body;
+        const email = req.params.email;
+
+        if(!newPassword || !confirmPassword){
+            return res.status(400).json({
+                success:false,
+                message:"All Fields Are Required"
+            })
+        }
+
+        const user = await User.findOne({ email });
+        if (!user) {
+            return res.status(400).json({
+                success: false,
+                message: "User Not Found"
+            });
+        }
+
+        const hashedPassword = await bcrypt.hash(newPassword,10);
+        user.password = hashedPassword;
+        await user.save();
+        return res.status(200).json({
+            success:true,
+            message:"Password Changed Successfully"
+        })
+    } catch (error) {
+            return res.status(500).json({
+            success:false,
+            message:error.message
+        })  
+    }
+
 
 }
