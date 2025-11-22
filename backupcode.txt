@@ -389,3 +389,139 @@ export const allUsers = async (_, res) => {
   }
 };
 
+
+
+
+
+
+import jwt from "jsonwebtoken";
+import { User } from "../model/userModel.js";
+
+
+export const isAuthenticated = async (req, res, next) => {
+  try {
+    const authHeader = req.headers.authorization;
+    if (!authHeader || !authHeader.startsWith("Bearer ")) {
+      return res.status(401).json({
+        success: false,
+        message: "Authorization Token Is Invalid or Missing",
+      });
+    }
+
+    const token = authHeader.split(" ")[1]; // [Bearer, fcggd334hdnb3bgc34]
+    let decode;
+    try {
+      decode = jwt.verify(token, process.env.JWT_SECRET_KEY);
+    } catch (error) {
+      if (error.name === "TokenExpiredError") {
+        return res.status(401).json({
+          success: false,
+          message: "The Token Has Expired",
+        });
+      }
+      return res.status(401).json({
+        success: false,
+        message: "Access Token Is Missing or Invalid",
+      });
+    }
+    const user = await User.findById(decode.id);
+    if (!user) {
+      return res.status(401).json({
+        success: false,
+        message: "User Not Found",
+      });
+    }
+    req.user = user;
+    console.log("req.user" );
+    
+    req.id = user._id;
+    next();
+  } catch (error) {
+    return res.status(500).json({
+      success: false,
+      message: error.message,
+    });
+  }
+};
+
+
+
+// Admin Authorized 
+
+export const isAdmin = async (req, res, next) => {
+  if (req.user && req.user.role === "admin") {
+    next();
+  } else {
+    return res.status(403).json({
+      success: false,
+      message: "Access Denied: Only Admins Allowed",
+    });
+  }
+};
+
+
+
+
+
+import express from "express";
+import { registerUser,verifyToken,reVerifyEmail,login,logout, forgotPassword,verifyOTP,changePassword,allUsers} from "../controllers/userController.js";
+import { isAuthenticated} from "../middleware/isAuthenticate.js";
+import { isAdmin } from "../middleware/isAuthenticate.js";
+
+
+const router = express.Router();
+
+router.post("/register", registerUser);
+router.post("/verify", verifyToken);
+router.post("/reverify", reVerifyEmail);
+router.post("/login", login);
+router.post("/logout",isAuthenticated ,logout);
+router.post("/forgot-password",forgotPassword);
+router.post("/verify-otp/:email",verifyOTP);
+router.post("/change-password/:email",changePassword);
+router.get("/all-users",isAuthenticated,isAdmin ,allUsers)
+
+
+
+
+
+
+
+
+export default router;
+
+
+
+
+
+
+import express from "express";
+import dotenv from "dotenv";
+import connectDB from "./database/db.js";
+import userRoutes from "./routes/userRoutes.js";
+
+dotenv.config();
+
+const app = express();
+const PORT = process.env.PORT || 3000;
+
+//middleware
+app.use(express.json());
+
+app.use("/api/v1/users", userRoutes);
+
+// http://localhost:3000/api/v1/users/register
+
+// Connect to MongoDB first
+connectDB()
+  .then(() => {
+    // Start the server after successful database connection
+    app.listen(PORT, () => {
+    
+
+      console.log(`\nServer is running on http://localhost:${PORT}\n`);
+    });
+  })
+  .catch((err) => {
+    console.error("Failed to start server:", err);
+  });
