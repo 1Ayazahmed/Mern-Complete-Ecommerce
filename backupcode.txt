@@ -393,7 +393,6 @@ export const allUsers = async (_, res) => {
 
 
 
-
 import jwt from "jsonwebtoken";
 import { User } from "../model/userModel.js";
 

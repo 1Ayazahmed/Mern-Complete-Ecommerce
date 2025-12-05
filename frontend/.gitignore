@@ -1,0 +1,11 @@
+# Frontend specific ignores (top-level .gitignore covers most)
+node_modules/
+dist/
+build/
+.vite/
+.cache/
+.env
+*.log
+.DS_Store
+.idea/
+.vscode/
