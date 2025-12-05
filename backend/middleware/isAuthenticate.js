@@ -5,9 +5,7 @@ import { User } from "../model/userModel.js";
 
 export const isAuthenticated = async (req, res, next) => {
   try {
-    console.log('[auth] middleware invoked for', req.method, req.path);
     const authHeader = req.headers.authorization;
-    console.log('[auth] Authorization header:', authHeader);
     if (!authHeader || !authHeader.startsWith("Bearer ")) {
       return res.status(401).json({
         success: false,
@@ -32,8 +30,6 @@ export const isAuthenticated = async (req, res, next) => {
       });
     }
     const user = await User.findById(decode.id);
-    console.log('[auth] decoded token:', decode);
-    console.log('[auth] user fetched from DB:', user ? user._id : null);
     if (!user) {
       return res.status(401).json({
         success: false,
@@ -41,9 +37,6 @@ export const isAuthenticated = async (req, res, next) => {
       });
     }
     req.user = user;
-    // keep req.user as the full mongoose document
-    console.log('[auth] req.user.role set to:', user.role);
-    
     req.id = user._id;
     next();
   } catch (error) {
