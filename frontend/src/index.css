@@ -118,3 +118,11 @@
     @apply bg-background text-foreground;
   }
 }
+
+
+/* .signup-card{
+border-radius: 50px;
+background: #f0f0f0;
+box-shadow:  5px 5px 0px #606060,
+             -5px -5px 0px #ffffff;
+} */
