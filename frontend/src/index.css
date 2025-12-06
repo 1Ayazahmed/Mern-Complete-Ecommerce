@@ -2,6 +2,10 @@
 @import "tw-animate-css";
 
 @custom-variant dark (&:is(.dark *));
+/* body{
+  background-color: #161616 !important;
+} */
+
 
 @theme inline {
   --radius-sm: calc(var(--radius) - 4px);
@@ -44,6 +48,7 @@
 :root {
   --radius: 0.625rem;
   --background: oklch(1 0 0);
+  /* --background: #161616; */
   --foreground: oklch(0.145 0 0);
   --card: oklch(1 0 0);
   --card-foreground: oklch(0.145 0 0);
