@@ -3,7 +3,6 @@ import React, { useState } from "react";
 import { Button } from "@/components/ui/button";
 import {
   Card,
-  CardAction,
   CardContent,
   CardDescription,
   CardFooter,
@@ -167,7 +166,7 @@ const submitHandler = async (e) => {
       <p className="text-gray-400 text-sm">
         Already have an account?{" "}
         <Link
-          to={"/signin"}
+          to={"/login"}
           className="hover:underline cursor-pointer text-green-400"
         >
           Sign In
