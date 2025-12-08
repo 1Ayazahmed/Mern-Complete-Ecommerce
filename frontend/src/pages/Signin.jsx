@@ -15,6 +15,8 @@ import { Eye, EyeOff, Loader2 } from "lucide-react";
 import { Link, useNavigate } from "react-router-dom";
 import { toast } from "sonner";
 import axios from "axios";
+import { useDispatch } from "react-redux";
+import { setUser } from "../redux/userSlice";
 
 const Signin = () => {
   const [showPassword, setShowPassword] = useState(false);
@@ -24,8 +26,8 @@ const Signin = () => {
     password: "",
   });
   const navigate = useNavigate();
-  
-   const handleChange = (e) => {
+  const dispatch = useDispatch();
+  const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData((prev) => ({
       ...prev,
@@ -49,6 +51,17 @@ const Signin = () => {
       if (res.data.success) {
         // alert("Registration Successful! Please verify your email.");
         navigate("/");
+        // persist tokens and user for session
+        if (res.data.accessToken) {
+          localStorage.setItem("accessToken", res.data.accessToken);
+        }
+        if (res.data.refreshToken) {
+          localStorage.setItem("refreshToken", res.data.refreshToken);
+        }
+        if (res.data.user) {
+          localStorage.setItem("user", JSON.stringify(res.data.user));
+          dispatch(setUser(res.data.user));
+        }
         toast.success(res.data.message);
       }
     } catch (error) {

@@ -51,7 +51,7 @@ ehthumbs.db
 
 # Credentials / secrets
 /credentials
-
+/backupcode.txt
 # Ignore local env overrides
 .env.local
 

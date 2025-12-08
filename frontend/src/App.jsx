@@ -7,13 +7,14 @@ import Signup from "./pages/Signup.jsx";
 import Signin from "./pages/Signin.jsx";
 import Verify from "./pages/Verify.jsx";
 import VerifyEmail from "./pages/VerifyEmail.jsx";
+import Footer from "./components/Footer.jsx";
 
 const router = createBrowserRouter([
   {
     path: "/",
     element: (
       <>
-        <Navbar /> <Home />
+        <Navbar /> <Home /> <Footer/>
       </>
     ),
   },

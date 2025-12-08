@@ -2,9 +2,35 @@ import React from 'react';
 import { Link } from 'react-router-dom';
 import { ShoppingCart } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import axios from 'axios';
+import { toast } from 'sonner';
+import { useSelector } from 'react-redux';
 
 const Navbar = () => {
-  const user = false; // Replace with actual auth logic
+//   const user = true; // Replace with actual auth logic
+const {user} = useSelector((store) => store.user);
+console.log("User Data",user);
+
+  const accessToken = localStorage.getItem("accessToken");
+  
+  const logoutHandler = async () =>{
+    try {
+        const res = await axios.post(`http://localhost:3000/api/v1/users/logout`,{},{
+            headers:{
+                Authorization: `Bearer ${accessToken}`
+            }
+    })
+            if(res.data.success){
+                toast.success(res.data.message);
+            }
+
+ }
+  catch (error) {
+    console.log(error);
+    toast.error("Logout failed. Please try again.");
+        
+    }
+  }
 
   return (
     <header className="bg-[#1f1f1f] fixed w-full z-20 border-b border-gray-700 shadow-md">
@@ -21,7 +47,7 @@ const Navbar = () => {
             <Link to="/products" className="hover:text-green-400 transition-colors"><li>Products</li></Link>
             {user && (
               <Link to="/profile" className="hover:text-green-400 transition-colors">
-                <li>Hello User</li>
+                <li>Hello {user.firstName}</li>
               </Link>
             )}
           </ul>
