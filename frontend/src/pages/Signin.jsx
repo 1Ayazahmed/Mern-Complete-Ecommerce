@@ -51,17 +51,8 @@ const Signin = () => {
       if (res.data.success) {
         // alert("Registration Successful! Please verify your email.");
         navigate("/");
-        // persist tokens and user for session
-        if (res.data.accessToken) {
-          localStorage.setItem("accessToken", res.data.accessToken);
-        }
-        if (res.data.refreshToken) {
-          localStorage.setItem("refreshToken", res.data.refreshToken);
-        }
-        if (res.data.user) {
-          localStorage.setItem("user", JSON.stringify(res.data.user));
-          dispatch(setUser(res.data.user));
-        }
+        dispatch(setUser(res.data.user));
+        localStorage.setItem("accessToken", res.data.accessToken);
         toast.success(res.data.message);
       }
     } catch (error) {

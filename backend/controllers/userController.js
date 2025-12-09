@@ -415,3 +415,8 @@ export const getUserById = async (req, res) => {
     });
   }
 };
+
+
+export const updateUserProfile = async (req, res) => {
+  
+}

@@ -15,7 +15,7 @@ router.post("/forgot-password",forgotPassword);
 router.post("/verify-otp/:email",verifyOTP);
 router.post("/change-password/:email",changePassword);
 router.get("/all-users",isAuthenticated,isAdmin ,allUsers)
-router.get('/get-user/:userId',getUserById)
+router.get("/get-user/:userId",getUserById)
 
 
 
