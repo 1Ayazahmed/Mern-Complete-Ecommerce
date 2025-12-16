@@ -7,6 +7,7 @@ import { Session } from "../model/sessionModel.js";
 
 import dotenv from "dotenv";
 dotenv.config();
+import cloudinary from "../utils/cloudinary.js";
 
 // register Controller
 export const registerUser = async (req, res) => {
@@ -370,13 +371,11 @@ export const changePassword = async (req, res) => {
   }
 };
 
-
-
-// To Get All Users 
+// To Get All Users
 
 export const allUsers = async (_, res) => {
   try {
-    const users = await User.find()
+    const users = await User.find();
     return res.status(200).json({
       success: true,
       users,
@@ -389,17 +388,18 @@ export const allUsers = async (_, res) => {
   }
 };
 
-
 export const getUserById = async (req, res) => {
   try {
     const { userId } = req.params;
 
-    const user = await User.findById(userId).select("-password -otp -otpExpiry -token");
+    const user = await User.findById(userId).select(
+      "-password -otp -otpExpiry -token"
+    );
 
     if (!user) {
       return res.status(404).json({
         success: false,
-        message: "User Not Found"
+        message: "User Not Found",
       });
     }
 
@@ -407,7 +407,6 @@ export const getUserById = async (req, res) => {
       success: true,
       user,
     });
-
   } catch (error) {
     return res.status(500).json({
       success: false,
@@ -416,7 +415,128 @@ export const getUserById = async (req, res) => {
   }
 };
 
-
 export const updateUserProfile = async (req, res) => {
-  
-}
+  try {
+    // ===== STEP 1: EXTRACT DATA FROM REQUEST =====
+    // Get the user ID from URL parameter (e.g., /update-profile/123)
+    const userIdToUpdate = req.params.id;
+    
+    // Get the logged-in user object from isAuthenticate middleware
+    // This contains: _id, role, firstName, etc.
+    // Use the user's id string and role for authorization checks
+    const LoggedInUserId = req.user._id ? req.user._id.toString() : req.user.toString();
+    const LoggedInUserRole = req.user.role;
+
+    // Extract profile fields from request body (sent from frontend form)
+    const { firstName, lastName, address, city, zipCode, phoneNo, role } = req.body;
+
+    // ===== STEP 2: AUTHORIZATION CHECK =====
+    // Only allow:
+    // 1. User updating their own profile (LoggedInUserId matches userIdToUpdate)
+    // 2. Admin users updating any profile (role === "admin")
+    if (
+      LoggedInUserId !== userIdToUpdate &&
+      LoggedInUserRole !== "admin"
+    ) {
+      return res.status(403).json({
+        success: false,
+        message: "You are not authorized to update this profile",
+      });
+    }
+
+    // ===== STEP 3: FETCH USER FROM DATABASE =====
+    // Find the user we want to update by their ID
+    let user = await User.findById(userIdToUpdate);
+    
+    // If user doesn't exist, return 404 error
+    if (!user) {
+      return res.status(404).json({
+        success: false,
+        message: "User Not Found",
+      });
+    }
+
+    // ===== STEP 4: HANDLE PROFILE PICTURE UPLOAD (IF PROVIDED) =====
+    // Initialize variables to store profile picture URLs
+    // These will either keep existing values or be updated with new ones
+    let profilePicUrl = user.profilePic;
+    let profilePicPublicId = user.profilePicPublicId;
+
+    // Check if a new profile picture file was uploaded
+    if (req.file) {
+      // Ensure Cloudinary credentials are present
+      if (!process.env.CLOUDINARY_NAME || !process.env.CLOUDINARY_API || !process.env.CLOUDINARY_SECRET) {
+        console.error("Cloudinary credentials missing. Set CLOUDINARY_NAME, CLOUDINARY_API, CLOUDINARY_SECRET in env.");
+        return res.status(500).json({ success: false, message: "Image upload service not configured on server" });
+      }
+      // validate file buffer exists
+      if (!req.file.buffer) {
+        return res.status(400).json({ success: false, message: "Uploaded file is invalid" });
+      }
+      // If user already has an old profile picture, delete it from Cloudinary
+      // to avoid storing unnecessary images in cloud storage
+      if (profilePicPublicId) {
+        await cloudinary.uploader.destroy(profilePicPublicId);
+      }
+
+      // Upload new profile picture to Cloudinary
+      // Wrap in Promise to handle async stream-based upload and catch errors
+      let uploadResult;
+      try {
+        uploadResult = await new Promise((resolve, reject) => {
+          const stream = cloudinary.uploader.upload_stream({ folder: "profile_pictures" }, (error, result) => {
+            if (error) return reject(error);
+            resolve(result);
+          });
+          stream.end(req.file.buffer);
+        });
+      } catch (uploadError) {
+        console.error("Cloudinary upload failed:", uploadError);
+        return res.status(500).json({ success: false, message: `Image upload failed: ${uploadError.message}` });
+      }
+
+      // Extract URLs from Cloudinary response and update variables
+      profilePicUrl = uploadResult.secure_url;        // e.g., https://res.cloudinary.com/.../image.jpg
+      profilePicPublicId = uploadResult.public_id;    // e.g., profile_pictures/abc123
+    }
+
+    // ===== STEP 5: UPDATE USER FIELDS IN MEMORY =====
+    // Update fields with new values from request, or keep existing values if not provided
+    // Using OR operator (||) ensures we only replace if new value exists
+    user.firstName = firstName || user.firstName;
+    user.lastName = lastName || user.lastName;
+    user.address = address || user.address;
+    user.city = city || user.city;
+    user.zipCode = zipCode || user.zipCode;
+    user.phoneNo = phoneNo || user.phoneNo;
+    
+    // Role can only be changed by admin users
+    // Regular users cannot change their own role
+    user.role = role || user.role;
+    
+    // Update profile picture URLs (from Step 4)
+    user.profilePic = profilePicUrl;
+    user.profilePicPublicId = profilePicPublicId;
+
+    // ===== STEP 6: SAVE CHANGES TO DATABASE =====
+    // Save all updated fields to MongoDB
+    const updatedUser = await user.save();
+
+    // ===== STEP 7: SEND SUCCESS RESPONSE =====
+    // Return 200 OK with updated user data
+    return res.status(200).json({
+      success: true,
+      message: "User Profile Updated Successfully",
+      user: updatedUser,  // Send updated user object back to frontend
+    });
+
+  } catch (error) {
+    // ===== ERROR HANDLING =====
+    // If anything goes wrong (Cloudinary error, DB error, etc.)
+    // catch block will handle it and return 500 Server Error
+    return res.status(500).json({
+      success: false,
+      message: error.message,
+    });
+  }
+};
