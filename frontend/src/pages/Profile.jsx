@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState,useEffect } from "react";
 import { Link, useParams } from "react-router-dom";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import {
@@ -31,11 +31,12 @@ const Profile = () => {
     firstName: user?.firstName || "",
     lastName: user?.lastName || "",
     email: user?.email || "",
-    phoneNo: user?.phoneNo || "",
+    phoneNo: user?.phoneNo || user?.phoneNumber || "",
     address: user?.address || "",
     city: user?.city || "",
     zipCode: user?.zipCode || "",
-    profilePicture: user?.profilePicture || "",
+    // read profile URL from either backend `profilePic` or frontend `profilePicture`
+    profilePicture: user?.profilePicture || user?.profilePic || "",
     role: user?.role || "",
   });
 
@@ -45,6 +46,24 @@ const Profile = () => {
   const handleChange = (e) => {
     setUpdateUser({ ...updateUser, [e.target.name]: e.target.value });
   };
+
+  // Keep local form state synced when the authenticated user changes (e.g., after login)
+  useEffect(() => {
+    if (user) {
+      setUpdateUser((prev) => ({
+        ...prev,
+        firstName: user.firstName || prev.firstName,
+        lastName: user.lastName || prev.lastName,
+        email: user.email || prev.email,
+        phoneNo: user.phoneNo || user.phoneNumber || prev.phoneNo,
+        address: user.address || prev.address,
+        city: user.city || prev.city,
+        zipCode: user.zipCode || prev.zipCode,
+        profilePicture: user.profilePicture || user.profilePic || prev.profilePicture,
+        role: user.role || prev.role,
+      }));
+    }
+  }, [user]);
 
   const handleFileChange = (e) => {
     const selectedFile = e.target.files[0];
