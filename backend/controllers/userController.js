@@ -7,6 +7,7 @@ import { Session } from "../model/sessionModel.js";
 
 import dotenv from "dotenv";
 dotenv.config();
+import cloudinary from "../utils/cloudinary.js";
 
 // register Controller
 export const registerUser = async (req, res) => {
@@ -422,7 +423,9 @@ export const updateUserProfile = async (req, res) => {
     
     // Get the logged-in user object from isAuthenticate middleware
     // This contains: _id, role, firstName, etc.
-    const LoggedInUserId = req.user;
+    // Use the user's id string and role for authorization checks
+    const LoggedInUserId = req.user._id ? req.user._id.toString() : req.user.toString();
+    const LoggedInUserRole = req.user.role;
 
     // Extract profile fields from request body (sent from frontend form)
     const { firstName, lastName, address, city, zipCode, phoneNo, role } = req.body;
@@ -432,8 +435,8 @@ export const updateUserProfile = async (req, res) => {
     // 1. User updating their own profile (LoggedInUserId matches userIdToUpdate)
     // 2. Admin users updating any profile (role === "admin")
     if (
-      LoggedInUserId.toString() !== userIdToUpdate &&
-      LoggedInUserId.role !== "admin"
+      LoggedInUserId !== userIdToUpdate &&
+      LoggedInUserRole !== "admin"
     ) {
       return res.status(403).json({
         success: false,
@@ -461,6 +464,15 @@ export const updateUserProfile = async (req, res) => {
 
     // Check if a new profile picture file was uploaded
     if (req.file) {
+      // Ensure Cloudinary credentials are present
+      if (!process.env.CLOUDINARY_NAME || !process.env.CLOUDINARY_API || !process.env.CLOUDINARY_SECRET) {
+        console.error("Cloudinary credentials missing. Set CLOUDINARY_NAME, CLOUDINARY_API, CLOUDINARY_SECRET in env.");
+        return res.status(500).json({ success: false, message: "Image upload service not configured on server" });
+      }
+      // validate file buffer exists
+      if (!req.file.buffer) {
+        return res.status(400).json({ success: false, message: "Uploaded file is invalid" });
+      }
       // If user already has an old profile picture, delete it from Cloudinary
       // to avoid storing unnecessary images in cloud storage
       if (profilePicPublicId) {
@@ -468,20 +480,20 @@ export const updateUserProfile = async (req, res) => {
       }
 
       // Upload new profile picture to Cloudinary
-      // Wrap in Promise to handle async stream-based upload
-      const uploadResult = await new Promise((resolve, reject) => {
-        // Create an upload stream to send file directly to Cloudinary
-        const stream = cloudinary.uploader.upload_stream(
-          { folder: "profile_pictures" },  // Store image in "profile_pictures" folder
-          (error, result) => {
-            // Handle upload completion (success or error)
-            if (error) reject(error);
-            else resolve(result);
-          }
-        );
-        // Send file buffer to Cloudinary via stream
-        stream.end(req.file.buffer);
-      });
+      // Wrap in Promise to handle async stream-based upload and catch errors
+      let uploadResult;
+      try {
+        uploadResult = await new Promise((resolve, reject) => {
+          const stream = cloudinary.uploader.upload_stream({ folder: "profile_pictures" }, (error, result) => {
+            if (error) return reject(error);
+            resolve(result);
+          });
+          stream.end(req.file.buffer);
+        });
+      } catch (uploadError) {
+        console.error("Cloudinary upload failed:", uploadError);
+        return res.status(500).json({ success: false, message: `Image upload failed: ${uploadError.message}` });
+      }
 
       // Extract URLs from Cloudinary response and update variables
       profilePicUrl = uploadResult.secure_url;        // e.g., https://res.cloudinary.com/.../image.jpg

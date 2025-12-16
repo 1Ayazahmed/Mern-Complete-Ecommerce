@@ -91,8 +91,9 @@ const Profile = () => {
         dispatch(setUser(res.data.user));
       }
     } catch (error) {
-      console.log(error);
-      toast.error("Profile update failed. Please try again.");
+        console.log(error);
+        const serverMessage = error?.response?.data?.message || error.message || "Profile update failed. Please try again.";
+        toast.error(serverMessage);
       
     }
   };
