@@ -10,29 +10,56 @@ import VerifyEmail from "./pages/VerifyEmail.jsx";
 import Footer from "./components/Footer.jsx";
 import Profile from "./pages/Profile.jsx";
 
-const RootLayout = ({ children }) => {
-  return (
-    <>
-      <Navbar />
-      {children}
-      <Footer />
-    </>
-  );
-};
-
 const router = createBrowserRouter([
   {
     path: "/",
-    element: <RootLayout />,
-    children: [
-      { index: true, element: <Home /> },
-      { path: "signup", element: <Signup /> },
-      { path: "login", element: <Signin /> },
-      { path: "verify", element: <Verify /> },
-      { path: "verify/:token", element: <VerifyEmail /> },
-      { path: "profile/:userId", element: <Profile /> },
-      { path: "*", element: <div className="p-10">404 - Not Found</div> },
-    ],
+    element: (
+      <>
+        <Navbar /> <Home /> <Footer/>
+      </>
+    ),
+  },
+  {
+    path: "/signup",
+    element: (
+      <>
+        <Signup />
+      </>
+    ),
+  },
+  {
+    path: "/login",
+    element: (
+      <>
+        <Signin />
+      </>
+    ),
+  },
+   {
+    path: "/verify",
+    element: (
+      <>
+        <Verify />
+      </>
+    ),
+  },
+    {
+    path: "/verify/:token",
+    element: (
+      <>
+        <VerifyEmail />
+      </>
+    ),
+  },
+   {
+    path: "/profile/:id",
+    element: (
+      <>
+      <Navbar />
+        <Profile />
+        <Footer/>
+      </>
+    ),
   },
 ]);
 
