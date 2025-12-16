@@ -22,7 +22,9 @@ const dummyProfilePic = "/user-dummy-profile.png";
 
 const Profile = () => {
   const params = useParams();
-  const userId = params.userId;
+  // support both :userId and :id route params and fall back to logged in user id
+  const routeId = params.userId || params.id;
+  const userId = routeId || user?._id;
   const { user } = useSelector((store) => store.user);
 
   const [updateUser, setUpdateUser] = useState({
@@ -60,6 +62,10 @@ const Profile = () => {
     const accessToken = localStorage.getItem("accessToken");
 
     try {
+      if (!userId) {
+        toast.error("User id not found. Please login or open your profile from your account.");
+        return;
+      }
       // using formData() for text + file
       const formData = new FormData();
       formData.append("firstName", updateUser.firstName);
@@ -73,7 +79,8 @@ const Profile = () => {
       if(file){
         formData.append("file", file); //image file for backend multer
       }
-      const res = await axios.put(`http://localhost:3000/api/v1/users/update/${userId}`, formData, {
+      // backend route is /update-profile/:id
+      const res = await axios.put(`http://localhost:3000/api/v1/users/update-profile/${userId}`, formData, {
         headers: {
           "Content-Type": "multipart/form-data",
           Authorization: `Bearer ${accessToken}`,
