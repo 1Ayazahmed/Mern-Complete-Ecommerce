@@ -2,6 +2,8 @@ import express from "express";
 import dotenv from "dotenv";
 import connectDB from "./database/db.js";
 import userRoutes from "./routes/userRoutes.js";
+import productRoutes from "./routes/productRoutes.js";
+
 import cors from "cors";
 
 dotenv.config();
@@ -19,6 +21,7 @@ app.use(
 );
 
 app.use("/api/v1/users", userRoutes);
+app.use("/api/v1/product", productRoutes);
 
 // http://localhost:3000/api/v1/users/register
 

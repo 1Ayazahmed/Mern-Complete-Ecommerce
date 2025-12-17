@@ -16,6 +16,7 @@ import { toast } from "sonner";
 import { setUser } from "@/redux/userSlice";
 import { useDispatch, useSelector } from "react-redux";
 import axios from "axios";
+import { Loader2 } from "lucide-react";
 
 // Use public asset by URL. Vite recommends referencing public files by absolute path or using ?url import.
 const dummyProfilePic = "/user-dummy-profile.png";
@@ -23,6 +24,7 @@ const dummyProfilePic = "/user-dummy-profile.png";
 const Profile = () => {
   const params = useParams();
   // support both :userId and :id route params and fall back to logged in user id
+    const [loading, setLoading] = useState(false);
   const routeId = params.userId || params.id;
   const userId = routeId || user?._id;
   const { user } = useSelector((store) => store.user);
@@ -99,6 +101,8 @@ const Profile = () => {
         formData.append("file", file); //image file for backend multer
       }
       // backend route is /update-profile/:id
+      setLoading(true);
+
       const res = await axios.put(`http://localhost:3000/api/v1/users/update-profile/${userId}`, formData, {
         headers: {
           "Content-Type": "multipart/form-data",
@@ -114,6 +118,8 @@ const Profile = () => {
         const serverMessage = error?.response?.data?.message || error.message || "Profile update failed. Please try again.";
         toast.error(serverMessage);
       
+    }finally{
+        setLoading(false);
     }
   };
 
@@ -255,7 +261,14 @@ const Profile = () => {
                 onClick={handleSubmit}
                 className="bg-green-600 hover:bg-green-500 text-white"
               >
-                Update Profile
+                {loading ? (
+              <>
+                <Loader2 className="h-4 w-4 animate-spin mr-2" /> Please Wait
+              </>
+            ) : (
+              "Update Profile"
+            )}
+                {/* Update Profile */}
               </Button>
             </CardFooter>
           </Card>
