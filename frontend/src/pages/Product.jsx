@@ -16,8 +16,10 @@ import { toast } from "sonner";
 
 const Product = () => {
   const [allProducts, setAllProducts] = useState([]);
+  const [loading, setLoading] = useState(false);
   const getAllProducts = async () => {
     try {
+        setLoading(true);
       const res = await axios.get(
         'http://localhost:3000/api/v1/product/getallproducts'
       );
@@ -27,6 +29,8 @@ const Product = () => {
     } catch (error) {
       console.error("Error fetching products:", error);
       toast.error(error, "Failed to fetch products. Please try again.");
+    } finally{
+        setLoading(false);
     }
   };
 
@@ -77,7 +81,7 @@ console.log(allProducts);
           {/* Product Grid */}
              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-3 gap-8">
           {allProducts.map((product) => {
-            return <ProductCard key={product._id} product={product} />;
+            return <ProductCard key={product._id} product={product} loading={loading} />;
           })}
           </div>
         </div>

@@ -1,25 +1,57 @@
 import React from 'react'
+import { Skeleton } from './ui/skeleton';
 
-const ProductCard = () => {
+const ProductCard = ({ product, loading }) => {
+  const { productName, productDescription, productPrice, productImg } = product;
+
   return (
-   <>
-         {/* Product Grid */}
-          {/* <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8"> */}
-            {/* Product Card 1 */}
-            <div className="bg-[#1f1f1f] border border-gray-700 rounded-xl shadow-lg p-5 hover:border-green-500 hover:scale-[1.02] transition-transform">
-              <div className="h-48 bg-gray-800 rounded-lg mb-4 flex items-center justify-center overflow-hidden">
-                <span className="text-gray-500">Image</span>
-              </div>
-              <h3 className="text-white font-semibold text-lg">Product Name</h3>
-              <p className="text-gray-400 text-sm mt-1">Short description here...</p>
-              <p className="text-green-400 font-bold mt-3 text-lg">$29.99</p>
-              <button className="mt-4 w-full bg-green-600 hover:bg-green-500 text-white py-2 rounded-lg font-medium">
-                Add to Cart
-              </button>
-            </div>
-          {/* </div> */}
-   </>
-  )
-}
+    <div className="bg-[#1f1f1f] border border-gray-700 rounded-xl shadow-lg p-5 hover:border-green-500 hover:scale-[1.02] transition-transform">
+      {/* Image */}
+      <div className="h-48 bg-gray-800 rounded-lg mb-4 flex items-center justify-center overflow-hidden">
+        {loading ? (
+          <Skeleton className="h-48 w-full rounded-lg" />
+        ) : (
+          <img
+            className="object-cover h-full w-full rounded-lg"
+            src={productImg[0]?.url}
+            alt={productName}
+          />
+        )}
+      </div>
 
-export default ProductCard
+      {/* Product Name */}
+      {loading ? (
+        <Skeleton className="h-6 w-3/4 mb-2" />
+      ) : (
+        <h3 className="text-white font-semibold text-lg">{productName}</h3>
+      )}
+
+      {/* Description */}
+      {loading ? (
+        <Skeleton className="h-4 w-full mb-2" />
+      ) : (
+        <p className="text-gray-400 text-sm mt-1 line-clamp-2">
+          {productDescription}
+        </p>
+      )}
+
+      {/* Price */}
+      {loading ? (
+        <Skeleton className="h-6 w-20 mt-3 mb-2" />
+      ) : (
+        <p className="text-green-400 font-bold mt-3 text-lg">${productPrice}</p>
+      )}
+
+      {/* Button */}
+      {loading ? (
+        <Skeleton className="h-10 w-full mt-4 rounded-lg" />
+      ) : (
+        <button className="mt-4 w-full bg-green-600 hover:bg-green-500 text-white py-2 rounded-lg font-medium">
+          Add to Cart
+        </button>
+      )}
+    </div>
+  );
+};
+
+export default ProductCard;
