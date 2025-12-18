@@ -4,6 +4,14 @@
 /* Dark mode variant */
 @custom-variant dark (&:is(.dark *));
 
+html {
+  overflow-y: scroll;
+}
+body {
+  overflow-x: hidden;
+}
+
+
 /* Theme variables */
 :root {
   --radius: 0.625rem;

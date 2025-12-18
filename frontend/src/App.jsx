@@ -9,6 +9,7 @@ import Verify from "./pages/Verify.jsx";
 import VerifyEmail from "./pages/VerifyEmail.jsx";
 import Footer from "./components/Footer.jsx";
 import Profile from "./pages/Profile.jsx";
+import Product from "./pages/Product.jsx";
 
 const router = createBrowserRouter([
   {
@@ -57,6 +58,16 @@ const router = createBrowserRouter([
       <>
       <Navbar />
         <Profile />
+        <Footer/>
+      </>
+    ),
+  },
+    {
+    path: "/product",
+    element: (
+      <>
+      <Navbar />
+        <Product />
         <Footer/>
       </>
     ),

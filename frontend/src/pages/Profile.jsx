@@ -125,7 +125,7 @@ const Profile = () => {
 
   return (
     <div className="pt-20 bg-[#161616] min-h-screen text-white">
-      <Tabs defaultValue="profile" className="max-w-7xl mx-auto">
+      <Tabs defaultValue="profile" className="mt-20 max-w-7xl mx-auto">
         <TabsList className="flex gap-4 border-b border-gray-700/60 pb-2">
           <TabsTrigger
             value="profile"
