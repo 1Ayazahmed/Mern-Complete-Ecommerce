@@ -13,39 +13,59 @@ import {
 import ProductCard from "@/components/ProductCard";
 import axios from "axios";
 import { toast } from "sonner";
+import { useDispatch, useSelector } from "react-redux";
+import { setProducts } from "@/redux/productSlice";
 
 const Product = () => {
+  // safe selector: if store.products is undefined during rehydration, fallback to empty array
+  const products = useSelector((store) => store.products?.products || []);
   const [allProducts, setAllProducts] = useState([]);
   const [loading, setLoading] = useState(false);
+  const [priceRange, setPriceRange] = useState([0, 10000]);
+  const [search, setSearch] = useState("");
+  const [category, setCategory] = useState("All");
+  const [brand, setBrand] = useState("All");
+  const dispatch = useDispatch();
   const getAllProducts = async () => {
     try {
-        setLoading(true);
+      setLoading(true);
       const res = await axios.get(
-        'http://localhost:3000/api/v1/product/getallproducts'
+        "http://localhost:3000/api/v1/product/getallproducts"
       );
       if (res.data.success) {
         setAllProducts(res.data.products);
+        dispatch(setProducts(res.data.products));
       }
     } catch (error) {
       console.error("Error fetching products:", error);
       toast.error(error, "Failed to fetch products. Please try again.");
-    } finally{
-        setLoading(false);
+    } finally {
+      setLoading(false);
     }
   };
 
-useEffect(()=>{
-getAllProducts();
-},[])
+  useEffect(() => {
+    getAllProducts();
+  }, []);
 
-console.log(allProducts);
+  console.log(allProducts);
 
   return (
     <div className="pt-20 pb-20 bg-[#161616] min-h-screen text-white">
       <div className="mt-20 max-w-7xl mx-auto px-4 flex gap-7">
         {/* Filter Left Sidebar */}
         <div className="w-64 flex-shrink-0">
-          <FilterSidebar />
+          <FilterSidebar
+            allProducts={allProducts}
+            priceRange={priceRange}
+            setPriceRange={setPriceRange}
+            brand={brand}
+            setBrand={setBrand}
+            category={category}
+            setCategory={setCategory}
+            search={search}
+            setSearch={setSearch}
+          />
         </div>
 
         {/* Product Cards Right Section */}
@@ -79,10 +99,16 @@ console.log(allProducts);
           </div>
 
           {/* Product Grid */}
-             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-3 gap-8">
-          {allProducts.map((product) => {
-            return <ProductCard key={product._id} product={product} loading={loading} />;
-          })}
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-3 gap-8">
+            {allProducts.map((product) => {
+              return (
+                <ProductCard
+                  key={product._id}
+                  product={product}
+                  loading={loading}
+                />
+              );
+            })}
           </div>
         </div>
       </div>

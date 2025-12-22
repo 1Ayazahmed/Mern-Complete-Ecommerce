@@ -42,12 +42,14 @@ const Navbar = () => {
     <header className="bg-[#1f1f1f] fixed w-full z-20 border-b border-gray-700 shadow-md">
       <div className="max-w-7xl mx-auto flex justify-between items-center py-3 px-6">
         {/* logo section */}
-        <div>
-          <img
+        <div className="cursor-pointer">
+          <Link to="/">
+          <img 
             src="/mernecommerce-logo.png"
             alt="mern-ecommerce Logo"
             className="w-[100px]"
           />
+          </Link>
         </div>
 
         {/* nav section */}
