@@ -17,15 +17,16 @@ import { useDispatch, useSelector } from "react-redux";
 import { setProducts } from "@/redux/productSlice";
 
 const Product = () => {
-  // safe selector: if store.products is undefined during rehydration, fallback to empty array
   const products = useSelector((store) => store.products?.products || []);
   const [allProducts, setAllProducts] = useState([]);
   const [loading, setLoading] = useState(false);
-  const [priceRange, setPriceRange] = useState([0, 10000]);
+  const [priceRange, setPriceRange] = useState([0, 5000]);
   const [search, setSearch] = useState("");
   const [category, setCategory] = useState("All");
   const [brand, setBrand] = useState("All");
   const dispatch = useDispatch();
+  const [sortOrder, setSortOrder] = useState("");
+
   const getAllProducts = async () => {
     try {
       setLoading(true);
@@ -38,22 +39,59 @@ const Product = () => {
       }
     } catch (error) {
       console.error("Error fetching products:", error);
-      toast.error(error, "Failed to fetch products. Please try again.");
+      toast.error("Failed to fetch products. Please try again.");
     } finally {
       setLoading(false);
     }
   };
 
   useEffect(() => {
+    if (allProducts.length === 0) {
+      return;
+    }
+
+    let filteredProducts = [...allProducts];
+
+    if (search.trim() !== "") {
+      filteredProducts = filteredProducts.filter((product) =>
+        product.productName.toLowerCase().includes(search.toLowerCase())
+      );
+    }
+
+    if (category !== "All") {
+      filteredProducts = filteredProducts.filter(
+        (product) => product.category === category
+      );
+    }
+
+    if (brand !== "All") {
+      filteredProducts = filteredProducts.filter(
+        (product) => product.brand === brand
+      );
+    }
+
+    filteredProducts = filteredProducts.filter(
+      (product) =>
+        product.productPrice >= priceRange[0] &&
+        product.productPrice <= priceRange[1]
+    );
+
+    if (sortOrder === "lowToHigh") {
+      filteredProducts.sort((a, b) => a.productPrice - b.productPrice);
+    } else if (sortOrder === "highToLow") {
+      filteredProducts.sort((a, b) => b.productPrice - a.productPrice);
+    }
+
+    dispatch(setProducts(filteredProducts));
+  }, [search, category, brand, priceRange, sortOrder, allProducts, dispatch]);
+
+  useEffect(() => {
     getAllProducts();
   }, []);
-
-  console.log(allProducts);
 
   return (
     <div className="pt-20 pb-20 bg-[#161616] min-h-screen text-white">
       <div className="mt-20 max-w-7xl mx-auto px-4 flex gap-7">
-        {/* Filter Left Sidebar */}
         <div className="w-64 flex-shrink-0">
           <FilterSidebar
             allProducts={allProducts}
@@ -68,11 +106,9 @@ const Product = () => {
           />
         </div>
 
-        {/* Product Cards Right Section */}
         <div className="flex-1 flex flex-col">
-          {/* Sort Dropdown */}
           <div className="flex justify-end items-center mb-6">
-            <Select>
+            <Select onValueChange={(value) => setSortOrder(value)}>
               <SelectTrigger className="w-[220px] bg-[#1f1f1f] border border-gray-700 text-gray-300 rounded-lg focus:ring-2 focus:ring-green-500">
                 <SelectValue placeholder="Sort by Price" />
               </SelectTrigger>
@@ -98,17 +134,14 @@ const Product = () => {
             </Select>
           </div>
 
-          {/* Product Grid */}
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-3 gap-8">
-            {allProducts.map((product) => {
-              return (
-                <ProductCard
-                  key={product._id}
-                  product={product}
-                  loading={loading}
-                />
-              );
-            })}
+            {products.map((product) => (
+              <ProductCard
+                key={product._id}
+                product={product}
+                loading={loading}
+              />
+            ))}
           </div>
         </div>
       </div>

@@ -86,37 +86,31 @@ const FilterSidebar = ({
       <div className="mb-6">
         <label className="block text-sm text-gray-400 mb-2">Category</label>
         <div className="space-y-3">
-          {categories.map((category, index) => (
+          <label className="flex items-center gap-2">
+            <input
+              type="radio"
+              value="All"
+              name="category"
+              className="accent-green-500"
+              checked={category === "All"}
+              onChange={handleCategoryChange}
+            />
+            <span className="text-gray-300 text-sm">All</span>
+          </label>
+
+          {categories.map((cat, index) => (
             <label key={index} className="flex items-center gap-2">
               <input
                 type="radio"
-                value={category}
+                value={cat}
                 name="category"
                 className="accent-green-500"
-                checked={category === category}
+                checked={category === cat}
                 onChange={handleCategoryChange}
               />
-              <span className="text-gray-300 text-sm">{category}</span>
+              <span className="text-gray-300 text-sm">{cat}</span>
             </label>
           ))}
-          <>
-            <label className="flex items-center gap-2">
-              <input
-                type="radio"
-                name="category"
-                className="accent-green-500"
-              />
-              <span className="text-gray-300 text-sm">Mobile</span>
-            </label>
-            <label className="flex items-center gap-2">
-              <input
-                type="radio"
-                name="category"
-                className="accent-green-500"
-              />
-              <span className="text-gray-300 text-sm">Headphone</span>
-            </label>
-          </>
         </div>
       </div>
 
