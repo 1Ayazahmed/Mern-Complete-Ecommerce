@@ -10,6 +10,7 @@ import VerifyEmail from "./pages/VerifyEmail.jsx";
 import Footer from "./components/Footer.jsx";
 import Profile from "./pages/Profile.jsx";
 import Product from "./pages/Product.jsx";
+import Cart from "./pages/Cart.jsx";
 
 const router = createBrowserRouter([
   {
@@ -72,7 +73,19 @@ const router = createBrowserRouter([
       </>
     ),
   },
+   {
+    path: "/cart",
+    element: (
+      <>
+      <Navbar />
+        <Cart />
+        <Footer/>
+      </>
+    ),
+  },
+
 ]);
+
 
 const App = () => {
   return (
