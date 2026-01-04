@@ -123,9 +123,10 @@ export const updateQuantity = async (req, res) => {
     if (type === "decrease" && item.quantity > 1) {
       item.quantity -= 1;
     }
-    cart.totalPrice = cart.items.reduce((acc, item) => {
-      acc + item.price * item.quantity, 0;
-    });
+    cart.totalPrice = cart.items.reduce(
+      (acc, item) => acc + item.price * item.quantity,
+      0
+    );
     await cart.save();
     cart = await cart.populate("items.productId");
     res.status(200).json({ success: true, cart });
@@ -149,14 +150,16 @@ export const removeFromCart = async (req, res) => {
         message: "Cart Not Found",
       });
     }
-    cart.items = cart.items.filter((item) => {
-      item.productId.toString() !== productId;
-    });
-    cart.totalPrice = cart.items.reduce((acc, item) => {
-      acc + item.price * item.quantity, 0;
-    });
+    cart.items = cart.items.filter(
+      (item) => item.productId.toString() !== productId
+    );
+    cart.totalPrice = cart.items.reduce(
+      (acc, item) => acc + item.price * item.quantity,
+      0
+    );
 
     await cart.save();
+    cart = await cart.populate("items.productId");
     res.status(200).json({
       success: true,
       cart,

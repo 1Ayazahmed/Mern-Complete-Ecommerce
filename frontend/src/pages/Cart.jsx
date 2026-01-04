@@ -12,6 +12,7 @@ import { ShoppingCart, Trash2 } from "lucide-react";
 import { Link, useNavigate } from "react-router-dom";
 import axios from "axios";
 import { setCart } from "@/redux/productSlice";
+import { toast } from "sonner";
 
 const Cart = () => {
   const { cart } = useSelector((store) => store.products);
@@ -30,7 +31,7 @@ const Cart = () => {
   const API = "http://localhost:3000/api/v1/cart";
   const accessToken = localStorage.getItem("accessToken");
 
-  const handleUpdateQuantity = async (productId,type) => {
+  const handleUpdateQuantity = async (productId, type) => {
     try {
       const res = await axios.put(
         `${API}/update`,
@@ -43,6 +44,24 @@ const Cart = () => {
       );
       if (res.data.success) {
         dispatch(setCart(res.data.cart));
+      }
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
+  const handleRemove = async (productId) => {
+    try {
+      const res = await axios.delete(`${API}/remove`, {
+        headers: {
+          Authorization: `Bearer ${accessToken}`,
+        },
+          data: { productId },
+
+      });
+      if (res.data.success) {
+        dispatch(setCart(res.data.cart));
+        toast.success("Product removed from cart");
       }
     } catch (error) {
       console.log(error);
@@ -81,7 +100,7 @@ const Cart = () => {
                             RS {product?.productId?.productPrice} ×{" "}
                             {product?.quantity}
                           </p>
-                          <p className="flex text-red-500 items-center gap-1 cursor-pointer mt-1 text-sm">
+                          <p onClick={() => handleRemove(product?.productId?._id)} className="flex text-red-500 items-center gap-1 cursor-pointer mt-1 text-sm">
                             <Trash2 className="w-4 h-4" />
                             Remove
                           </p>
@@ -93,8 +112,12 @@ const Cart = () => {
                         <Button
                           variant="outline"
                           className="text-white border-gray-600 cursor-pointer"
-
-                          onClick={() => handleUpdateQuantity(product.productId._id, "decrease")}
+                          onClick={() =>
+                            handleUpdateQuantity(
+                              product.productId._id,
+                              "decrease"
+                            )
+                          }
                         >
                           -
                         </Button>
@@ -102,8 +125,12 @@ const Cart = () => {
                         <Button
                           variant="outline"
                           className="text-white border-gray-600 cursor-pointer"
-
-                          onClick={() => handleUpdateQuantity(product.productId._id, "increase")}
+                          onClick={() =>
+                            handleUpdateQuantity(
+                              product.productId._id,
+                              "increase"
+                            )
+                          }
                         >
                           +
                         </Button>
