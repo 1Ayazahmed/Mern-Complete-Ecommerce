@@ -3,10 +3,14 @@ import dotenv from "dotenv";
 import connectDB from "./database/db.js";
 import userRoutes from "./routes/userRoutes.js";
 import productRoutes from "./routes/productRoutes.js";
+import cartRoutes from "./routes/cartRoutes.js";
 
 import cors from "cors";
 
-dotenv.config();
+// dotenv.config();
+dotenv.config({
+  path: "./backend/.env",
+});
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -22,6 +26,8 @@ app.use(
 
 app.use("/api/v1/users", userRoutes);
 app.use("/api/v1/product", productRoutes);
+app.use("/api/v1/cart", cartRoutes);
+
 
 // http://localhost:3000/api/v1/users/register
 

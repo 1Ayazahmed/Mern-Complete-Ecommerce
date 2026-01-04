@@ -11,10 +11,14 @@ import { useNavigate } from "react-router-dom";
 const Navbar = () => {
   //   const user = true; // Replace with actual auth logic
   const { user } = useSelector((store) => store.user);
+  const { cart } = useSelector((store) => store.products);
+console.log("Cart Data",cart);
+
   const dispatch = useDispatch();
-  console.log("User Data", user);
+  // console.log("User Data", user);
   const navigate = useNavigate();
 
+  
   const accessToken = localStorage.getItem("accessToken");
 
   const logoutHandler = async () => {
@@ -37,6 +41,7 @@ const Navbar = () => {
       toast.error("Logout failed. Please try again.");
     }
   };
+  console.log(cart);
 
   return (
     <header className="bg-[#1f1f1f] fixed w-full z-20 border-b border-gray-700 shadow-md">
@@ -80,7 +85,7 @@ const Navbar = () => {
           >
             <ShoppingCart />
             <span className="bg-green-600 rounded-full absolute text-white -top-3 -right-5 px-2 text-sm">
-              0
+              {cart?.items?.length || 0 }
             </span>
           </Link>
 

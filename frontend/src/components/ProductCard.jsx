@@ -1,8 +1,38 @@
-import React from 'react'
-import { Skeleton } from './ui/skeleton';
+import React from "react";
+import { Skeleton } from "./ui/skeleton";
+import { toast } from "sonner";
+import { useDispatch } from "react-redux";
+import { useNavigate } from "react-router-dom";
+import { setCart } from "@/redux/productSlice";
+import axios from "axios";
 
 const ProductCard = ({ product, loading }) => {
   const { productName, productDescription, productPrice, productImg } = product;
+  const accessToken = localStorage.getItem("accessToken");
+  const dispatch = useDispatch();
+  const navigate = useNavigate();
+
+  const addToCart = async (productId) => {
+    try {
+      const res = await axios.post(
+        "http://localhost:3000/api/v1/cart/add",
+        { productId },
+        {
+          headers: {
+              Authorization: `Bearer ${accessToken}`,
+          },
+        }
+      );
+      if (res.data.success) {
+        toast.success("Product Added To Cart");
+        dispatch(setCart(res.data.cart));
+      }
+    } catch (error) {
+      // console.error(error);
+      console.log(error);
+      
+    }
+  };
 
   return (
     <div className="bg-[#1f1f1f] border border-gray-700 rounded-xl shadow-lg p-5 hover:border-green-500 hover:scale-[1.02] transition-transform">
@@ -46,12 +76,15 @@ const ProductCard = ({ product, loading }) => {
       {loading ? (
         <Skeleton className="h-10 w-full mt-4 rounded-lg animate-pulse" />
       ) : (
-        <button className="mt-4 w-full bg-green-600 hover:bg-green-500 text-white py-2 rounded-lg font-medium">
+        <button
+          onClick={() => addToCart(product._id)}
+          className="mt-4 w-full cursor-pointer bg-green-600 hover:bg-green-500 text-white py-2 rounded-lg font-medium"
+        >
           Add to Cart
         </button>
       )}
     </div>
-  )
-}
+  );
+};
 
-export default ProductCard
+export default ProductCard;
