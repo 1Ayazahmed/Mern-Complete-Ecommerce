@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { Button } from "../components/ui/button";
 import {
@@ -56,8 +56,7 @@ const Cart = () => {
         headers: {
           Authorization: `Bearer ${accessToken}`,
         },
-          data: { productId },
-
+        data: { productId },
       });
       if (res.data.success) {
         dispatch(setCart(res.data.cart));
@@ -68,6 +67,25 @@ const Cart = () => {
     }
   };
 
+  const loadCart = async () => {
+    try {
+      const res = await axios.get(API, {
+        headers: {
+          Authorization: `Bearer ${accessToken}`,
+        },
+      });
+
+      if (res.data.success) {
+        dispatch(setCart(res.data.cart));
+      }
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
+  useEffect(()=>{
+    loadCart();
+  },[dispatch])
   return (
     <div className="pt-20 bg-[#161616] min-h-screen text-white flex justify-center">
       <div className="w-full max-w-7xl px-4">
@@ -100,7 +118,12 @@ const Cart = () => {
                             RS {product?.productId?.productPrice} ×{" "}
                             {product?.quantity}
                           </p>
-                          <p onClick={() => handleRemove(product?.productId?._id)} className="flex text-red-500 items-center gap-1 cursor-pointer mt-1 text-sm">
+                          <p
+                            onClick={() =>
+                              handleRemove(product?.productId?._id)
+                            }
+                            className="flex text-red-500 items-center gap-1 cursor-pointer mt-1 text-sm"
+                          >
                             <Trash2 className="w-4 h-4" />
                             Remove
                           </p>

@@ -12,11 +12,13 @@ const Navbar = () => {
   //   const user = true; // Replace with actual auth logic
   const { user } = useSelector((store) => store.user);
   const { cart } = useSelector((store) => store.products);
-console.log("Cart Data",cart);
+// console.log("Cart Data",cart);
 
   const dispatch = useDispatch();
   // console.log("User Data", user);
   const navigate = useNavigate();
+
+  const admin = user?.role === "admin" ? true : false;
 
   
   const accessToken = localStorage.getItem("accessToken");
@@ -41,7 +43,7 @@ console.log("Cart Data",cart);
       toast.error("Logout failed. Please try again.");
     }
   };
-  console.log(cart);
+  // console.log(cart);
 
   return (
     <header className="bg-[#1f1f1f] fixed w-full z-20 border-b border-gray-700 shadow-md">
@@ -75,6 +77,15 @@ console.log("Cart Data",cart);
                 className="hover:text-green-400 transition-colors"
               >
                 <li>Hello {user.firstName}</li>
+              </Link>
+            )}
+
+               {admin && (
+              <Link
+                to={`/admin`}
+                className="hover:text-green-400 transition-colors"
+              >
+                <li>Admin Panel</li>
               </Link>
             )}
           </ul>

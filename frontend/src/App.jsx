@@ -11,13 +11,22 @@ import Footer from "./components/Footer.jsx";
 import Profile from "./pages/Profile.jsx";
 import Product from "./pages/Product.jsx";
 import Cart from "./pages/Cart.jsx";
+import AdminSales from "./pages/admin/AdminSales.jsx";
+import AddProduct from "./pages/admin/AddProduct.jsx";
+import AdminOrders from "./pages/admin/AdminOrders.jsx";
+import AdminProduct from "./pages/admin/AdminProduct.jsx";
+import ShowUserOrder from "./pages/admin/ShowUserOrder.jsx";
+import UserInfo from "./pages/admin/UserInfo.jsx";
+import AdminUsers from "./pages/admin/AdminUsers.jsx";
+import ProtectedRoute from "./components/ProtectedRoute.jsx";
+import Dashboard from "./pages/Dashboard.jsx"
 
 const router = createBrowserRouter([
   {
     path: "/",
     element: (
       <>
-        <Navbar /> <Home /> <Footer/>
+        <Navbar /> <Home /> <Footer />
       </>
     ),
   },
@@ -37,7 +46,7 @@ const router = createBrowserRouter([
       </>
     ),
   },
-   {
+  {
     path: "/verify",
     element: (
       <>
@@ -45,7 +54,7 @@ const router = createBrowserRouter([
       </>
     ),
   },
-    {
+  {
     path: "/verify/:token",
     element: (
       <>
@@ -53,44 +62,86 @@ const router = createBrowserRouter([
       </>
     ),
   },
-   {
+  {
     path: "/profile/:id",
     element: (
       <>
-      <Navbar />
-        <Profile />
-        <Footer/>
+        <ProtectedRoute>
+          <Navbar />
+          <Profile />
+          <Footer />
+        </ProtectedRoute>
       </>
     ),
   },
-    {
+  {
     path: "/product",
     element: (
       <>
-      <Navbar />
+        <Navbar />
         <Product />
-        <Footer/>
+        <Footer />
       </>
     ),
   },
-   {
+  {
     path: "/cart",
     element: (
       <>
-      <Navbar />
+        <Navbar />
         <Cart />
-        <Footer/>
+        <Footer />
       </>
     ),
   },
-
+  {
+    path: "/admin",
+    element: (
+      <>
+        <ProtectedRoute adminOnly>
+          <Navbar /> 
+          <Dashboard />
+           <Footer />
+        </ProtectedRoute>
+      </>
+    ),
+    children: [
+      {
+        path: "users/orders/:userId",
+        element: <AdminSales />,
+      },
+      {
+        path: "users",
+        element: <AdminUsers />,
+      },
+      {
+        path: "user/:Id",
+        element: <UserInfo />,
+      },
+      {
+        path: "users/order/:Id",
+        element: <ShowUserOrder />,
+      },
+      {
+        path: "admin-product",
+        element: <AdminProduct />,
+      },
+      {
+        path: "admin-orders",
+        element: <AdminOrders />,
+      },
+      {
+        path: "add-product",
+        element: <AddProduct />,
+      },
+    ],
+  },
 ]);
-
 
 const App = () => {
   return (
     <>
-    {/* <div>App</div> */}
+      {/* <div>App</div> */}
       <RouterProvider router={router} />
     </>
   );
