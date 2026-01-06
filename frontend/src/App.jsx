@@ -20,6 +20,7 @@ import UserInfo from "./pages/admin/UserInfo.jsx";
 import AdminUsers from "./pages/admin/AdminUsers.jsx";
 import ProtectedRoute from "./components/ProtectedRoute.jsx";
 import Dashboard from "./pages/Dashboard.jsx"
+import SingleProduct from "./pages/SingleProduct.jsx";
 
 const router = createBrowserRouter([
   {
@@ -84,21 +85,35 @@ const router = createBrowserRouter([
       </>
     ),
   },
-  {
-    path: "/cart",
+    {
+    path: "/products/:id",
     element: (
       <>
         <Navbar />
-        <Cart />
+        <SingleProduct />
         <Footer />
       </>
     ),
   },
   {
-    path: "/admin",
+    path: "/cart",
     element: (
       <>
-        <ProtectedRoute adminOnly>
+        <ProtectedRoute>
+
+        <Navbar />
+        <Cart />
+        <Footer />
+        </ProtectedRoute>
+
+      </>
+    ),
+  },
+  {
+    path: "/dashboard",
+    element: (
+      <>
+        <ProtectedRoute adminOnly={true}>
           <Navbar /> 
           <Dashboard />
            <Footer />

@@ -35,7 +35,12 @@ const ProductCard = ({ product, loading }) => {
   };
 
   return (
-    <div className="bg-[#1f1f1f] border border-gray-700 rounded-xl shadow-lg p-5 hover:border-green-500 hover:scale-[1.02] transition-transform">
+   <div
+      className="bg-[#1f1f1f] border border-gray-700 rounded-xl shadow-lg p-5 hover:border-green-500 hover:scale-[1.02] transition-transform cursor-pointer"
+      onClick={() => {
+        navigate(`/products/${product._id}`);
+      }}
+    >
       {/* Image */}
       <div className="h-48 bg-gray-800 rounded-lg mb-4 flex items-center justify-center overflow-hidden">
         {loading ? (
