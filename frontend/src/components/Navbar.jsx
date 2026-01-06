@@ -82,7 +82,7 @@ const Navbar = () => {
 
                {admin && (
               <Link
-                to={`/admin`}
+                to={`/dashboard`}
                 className="hover:text-green-400 transition-colors"
               >
                 <li>Admin Panel</li>
