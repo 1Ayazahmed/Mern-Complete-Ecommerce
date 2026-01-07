@@ -190,7 +190,7 @@ const AdminProduct = () => {
                         </DialogDescription>
                       </DialogHeader>
 
-                      <div className="grid grid-cols-1 md:grid-cols-2 gap-6 py-4">
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-6 py-4 max-h-[60vh] overflow-y-auto pr-4">
                         <div className="grid gap-2">
                           <Label htmlFor="productName">Product Name</Label>
                           <Input
