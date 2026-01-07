@@ -50,10 +50,13 @@ export const addProduct = async (req, res) => {
       brand,
       productImg, // array of objects [{url,public_id},{url,public_id}]
     });
+
+    const products = await Product.find({});
+
     return res.status(201).json({
       success: true,
       message: "Product added successfully",
-      product: newProduct,
+      products: products,
     });
   } catch (error) {
     return res.status(500).json({ success: false, message: error.message });

@@ -5,11 +5,13 @@ import { Button } from "@/components/ui/button";
 import ImageUpload from "@/components/ImageUpload";
 import axios from "axios";
 import { toast } from "react-hot-toast";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { Loader2 } from "lucide-react";
+import { setProducts } from "@/redux/productSlice";
 
 const AddProduct = () => {
   const dispatch = useDispatch();
+  const { products } = useSelector((store) => store.products); // <-- use products array
   const [loading, setLoading] = useState(false);
   const [productData, setProductData] = useState({
     productName: "",
@@ -36,7 +38,7 @@ const AddProduct = () => {
     const formData = new FormData();
     formData.append("productName", productData.productName);
     formData.append("productPrice", productData.productPrice);
-    formData.append("productDesc", productData.productDesc);
+    formData.append("productDescription", productData.productDesc);
     formData.append("category", productData.category);
     formData.append("brand", productData.brand);
 
@@ -62,6 +64,7 @@ const AddProduct = () => {
       );
 
       if (res.data.success) {
+        dispatch(setProducts(res.data.products)); // use Redux action
         toast.success(res.data.message);
         setProductData({
           productName: "",
@@ -93,6 +96,7 @@ const AddProduct = () => {
 
       {/* Full Width Form */}
       <div className="space-y-6 w-full">
+        {/* Inputs */}
         <div>
           <label className="block mb-2 text-sm text-gray-300">Product Name</label>
           <Input

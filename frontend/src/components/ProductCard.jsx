@@ -74,7 +74,7 @@ const ProductCard = ({ product, loading }) => {
       {loading ? (
         <Skeleton className="h-6 w-20 mt-3 mb-2 animate-pulse" />
       ) : (
-        <p className="text-green-400 font-bold mt-3 text-lg">${productPrice}</p>
+        <p className="text-green-400 font-bold mt-3 text-lg">Rs {productPrice}</p>
       )}
 
       {/* Button */}
