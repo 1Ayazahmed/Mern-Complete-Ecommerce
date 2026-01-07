@@ -26,6 +26,7 @@ import { Textarea } from "@/components/ui/textarea";
 import axios from "axios";
 import { toast } from "sonner";
 import { setProducts } from "@/redux/productSlice";
+import ImageUpload from "@/components/ImageUpload";
 
 const AdminProduct = () => {
   const { products } = useSelector((store) => store.products);
@@ -180,7 +181,7 @@ const AdminProduct = () => {
                     </Button>
                   </DialogTrigger>
 
-                  <DialogContent className="sm:max-w-[900px] bg-[#1f1f1f] text-white border border-gray-700">
+                  <DialogContent className="sm:max-w-4xl bg-[#1f1f1f] text-white border border-gray-700">
                     <form onSubmit={handleSave}>
                       <DialogHeader>
                         <DialogTitle>Edit Product</DialogTitle>
@@ -255,7 +256,10 @@ const AdminProduct = () => {
                             className="bg-[#2a2a2a] border border-gray-600 text-white"
                           />
                         </div>
+                      
+                            {editProduct && <ImageUpload productData={editProduct} setProductData={setEditProduct}/>}
 
+                   
                         <div className="md:col-span-2 grid gap-2">
                           <Label>Image Preview</Label>
                           <img

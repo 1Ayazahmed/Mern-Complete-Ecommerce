@@ -3,6 +3,8 @@ import { Card, CardContent } from "./ui/card";
 import { X } from "lucide-react";
 
 const ImageUpload = ({ productData, setProductData }) => {
+  if (!productData) return null;
+
   const handleFiles = (e) => {
     const files = Array.from(e.target.files || []);
     if (files.length) {
@@ -35,9 +37,9 @@ const ImageUpload = ({ productData, setProductData }) => {
       />
 
       {/* Image Preview Grid */}
-      {productData.productImg.length > 0 && (
+      {productData?.productImg?.length > 0 && (
         <div className="grid grid-cols-2 sm:grid-cols-3 gap-4 mt-4">
-          {productData.productImg.map((img, index) => {
+          {(productData.productImg || []).map((img, index) => {
             let preview;
             if (img instanceof File) {
               preview = URL.createObjectURL(img);
