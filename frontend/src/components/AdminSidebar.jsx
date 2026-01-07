@@ -44,7 +44,7 @@ const AdminSidebar = () => {
 
         {/* Products */}
         <NavLink
-          to="/dashboard/products"
+          to="/dashboard/admin-product"
           className={({ isActive }) =>
             `flex items-center gap-3 text-sm font-semibold px-4 py-3 rounded-xl transition-all ${
               isActive
